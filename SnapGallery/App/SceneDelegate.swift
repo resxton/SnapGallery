@@ -1,8 +1,9 @@
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
+    
     var window: UIWindow?
+    let container = AppDIContainer()
 
     func scene(
         _ scene: UIScene,
@@ -11,8 +12,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        let rootViewController = ViewController()
-        window?.rootViewController = rootViewController
+        
+        let rootViewController = container.makeGalleryViewController()
+        let navigationController = UINavigationController(rootViewController: rootViewController)
+        
+        window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
     }
 }
