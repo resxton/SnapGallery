@@ -22,8 +22,9 @@ class GalleryViewController: UIViewController {
     
     private var loader: UIActivityIndicatorView = {
         let loader = UIActivityIndicatorView(style: .large)
-        loader.hidesWhenStopped = true
+        loader.alpha = 0
         loader.color = .customBlack
+        loader.backgroundColor = .accent
         return loader
     }()
     
@@ -73,7 +74,7 @@ class GalleryViewController: UIViewController {
         }
         
         loader.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+            make.edges.equalToSuperview()
         }
     }
 }
@@ -87,8 +88,13 @@ extension GalleryViewController: GalleryViewProtocol {
             
             if isVisible {
                 loader.startAnimating()
+                loader.alpha = 1
             } else {
-                loader.stopAnimating()
+                UIView.animate(withDuration: 0.3, animations: {
+                    self.loader.alpha = 0
+                }, completion: { _ in
+                    self.loader.stopAnimating()
+                })
             }
         }
     }

@@ -41,7 +41,7 @@ final class GalleryPresenter: GalleryPresenterProtocol {
         
         view.setLoaderVisible(true)
         
-        productRepository.fetchProductsList { [weak self] result in
+        self.productRepository.fetchProductsList { [weak self] result in
             guard let self else { return }
             
             view.setLoaderVisible(false)
