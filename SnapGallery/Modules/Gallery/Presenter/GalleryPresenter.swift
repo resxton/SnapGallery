@@ -5,10 +5,14 @@ final class GalleryPresenter: GalleryPresenterProtocol {
     // MARK: - Public Properties
     
     weak var view: GalleryViewProtocol?
+    var productsCount: Int {
+        products.count
+    }
     
     // MARK: - Private Properties
     
     private let productRepository: ProductRepositoryProtocol
+    private var products: [Product] = []
     
     // MARK: - Initializers
     
@@ -26,6 +30,10 @@ final class GalleryPresenter: GalleryPresenterProtocol {
         
     }
     
+    public func product(at index: Int) -> Product {
+        products[index]
+    }
+    
     // MARK: - Private Methods
     
     private func loadPhotos() {
@@ -33,13 +41,17 @@ final class GalleryPresenter: GalleryPresenterProtocol {
         
         view.setLoaderVisible(true)
         
-        
-        productRepository.fetchProductsList { result in
+        productRepository.fetchProductsList { [weak self] result in
+            guard let self else { return }
+            
             view.setLoaderVisible(false)
             
             switch result {
             case .success(let productsList):
-                print(productsList[0])
+                DispatchQueue.main.async {
+                    self.products = productsList
+                    self.view?.updateTable()
+                }
             case .failure(let error):
                 print(error)
             }
