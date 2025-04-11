@@ -6,14 +6,14 @@ final class AppDIContainer {
     
     private lazy var networkService: NetworkServiceProtocol = NetworkService()
     
-    private lazy var picsumPhotoRepository: PicsumPhotoRepositoryProtocol = {
-        PicsumPhotoRepository(networkService: networkService)
+    private lazy var productRepository: ProductRepositoryProtocol = {
+        ProductRepository(networkService: networkService)
     }()
     
     // MARK: - Public Methods
     
     public func makeGalleryViewController() -> GalleryViewController {
-        let presenter = GalleryPresenter(photoRepository: picsumPhotoRepository)
+        let presenter = GalleryPresenter(productRepository: productRepository)
         let view = GalleryViewController(presenter: presenter)
         presenter.view = view
         

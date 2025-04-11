@@ -1,6 +1,6 @@
 import Foundation
 
-class PicsumPhotoRepository: PicsumPhotoRepositoryProtocol {
+class ProductRepository: ProductRepositoryProtocol {
     
     // MARK: - Private Properties
     
@@ -19,17 +19,20 @@ class PicsumPhotoRepository: PicsumPhotoRepositoryProtocol {
     
     // MARK: - Public Methods
     
-    public func fetchPhotosList(
-        completion: @escaping (Result<[PicsumPhoto], NetworkError>) -> Void
+    public func fetchProductsList(
+        completion: @escaping (Result<[Product], NetworkError>) -> Void
     ) {
-        networkService.get(url: Consts.photosListUrl) { [weak self] result in
+        networkService.get(url: Consts.productsListUrl) { [weak self] result in
             guard let self else { return }
             
             switch result {
             case .success(let data):
                 do {
-                    let photos = try jsonDecoder.decode([PicsumPhoto].self, from: data)
-                    completion(.success(photos))
+                    let productsDTO = try jsonDecoder.decode([ProductDTO].self, from: data)
+                    let products = productsDTO.map {
+                        $0.toDomain()
+                    }
+                    completion(.success(products))
                 } catch {
                     completion(.failure(.decodingError(underlying: error)))
                 }
@@ -55,8 +58,8 @@ class PicsumPhotoRepository: PicsumPhotoRepositoryProtocol {
 
 // MARK: - Constants
 
-extension PicsumPhotoRepository {
+extension ProductRepository {
     private enum Consts {
-        static let photosListUrl = "https://picsum.photos/v2/list"
+        static let productsListUrl = "https://fakestoreapi.com/products"
     }
 }

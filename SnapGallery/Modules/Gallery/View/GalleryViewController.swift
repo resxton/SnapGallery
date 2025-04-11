@@ -7,6 +7,20 @@ class GalleryViewController: UIViewController {
     
     private var tableView = UITableView()
     
+    private var progressBar: UIProgressView = {
+        let progressBar = UIProgressView()
+        progressBar.tintColor = .accent
+        progressBar.trackTintColor = .customBlack
+        return progressBar
+    }()
+    
+    private var loader: UIActivityIndicatorView = {
+        let loader = UIActivityIndicatorView(style: .large)
+        loader.hidesWhenStopped = true
+        loader.color = .customBlack
+        return loader
+    }()
+    
     // MARK: - Private Properties
     
     private let presenter: GalleryPresenterProtocol
@@ -38,12 +52,19 @@ class GalleryViewController: UIViewController {
     private func setupUI() {
         tableView.dataSource = self
         tableView.delegate = self
+        
+        view.backgroundColor = .systemBackground
         view.addSubview(tableView)
+        view.addSubview(loader)
     }
     
     private func setupConstraints() {
         tableView.snp.makeConstraints { make in
             make.edges.equalTo(view.layoutMarginsGuide)
+        }
+        
+        loader.snp.makeConstraints { make in
+            make.center.equalToSuperview()
         }
     }
 }
@@ -51,7 +72,17 @@ class GalleryViewController: UIViewController {
 // MARK: - GalleryViewProtocol
 
 extension GalleryViewController: GalleryViewProtocol {
-    
+    func setLoaderVisible(_ isVisible: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            
+            if isVisible {
+                loader.startAnimating()
+            } else {
+                loader.stopAnimating()
+            }
+        }
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -62,6 +93,12 @@ extension GalleryViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        guard let cell = tableView.dequeueReusableCell(withIdentifier: Consts.cellIdentifier) else {
+//            return UITableViewCell()
+//        }
+        
+        // let photo = presenter.photo(at: indexPath.row)
+        
         return UITableViewCell()
     }
 }
@@ -70,7 +107,7 @@ extension GalleryViewController: UITableViewDataSource {
 
 extension GalleryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+        presenter.didSelectRow(at: indexPath)
     }
 }
 

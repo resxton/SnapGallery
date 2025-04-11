@@ -1,19 +1,19 @@
 import Foundation
 
 final class GalleryPresenter: GalleryPresenterProtocol {
-    
+
     // MARK: - Public Properties
     
     weak var view: GalleryViewProtocol?
     
     // MARK: - Private Properties
     
-    private let photoRepository: PicsumPhotoRepositoryProtocol
+    private let productRepository: ProductRepositoryProtocol
     
     // MARK: - Initializers
     
-    init(photoRepository: PicsumPhotoRepositoryProtocol) {
-        self.photoRepository = photoRepository
+    init(productRepository: ProductRepositoryProtocol) {
+        self.productRepository = productRepository
     }
     
     // MARK: - Public Methods
@@ -22,13 +22,24 @@ final class GalleryPresenter: GalleryPresenterProtocol {
         loadPhotos()
     }
     
+    public func didSelectRow(at indexPath: IndexPath) {
+        
+    }
+    
     // MARK: - Private Methods
     
     private func loadPhotos() {
-        photoRepository.fetchPhotosList { result in
+        guard let view else { return }
+        
+        view.setLoaderVisible(true)
+        
+        
+        productRepository.fetchProductsList { result in
+            view.setLoaderVisible(false)
+            
             switch result {
-            case .success(let photosList):
-                print(photosList[0])
+            case .success(let productsList):
+                print(productsList[0])
             case .failure(let error):
                 print(error)
             }
