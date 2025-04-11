@@ -14,7 +14,7 @@
 		3CECD5B02DA8E89D00B5E988 /* Exceptions for "SnapGallery" folder in "SnapGallery" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				App/Info.plist,
 			);
 			target = 3CECD59D2DA8E89C00B5E988 /* SnapGallery */;
 		};
@@ -170,7 +170,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M5KG29P3ML;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SnapGallery/Info.plist;
+				INFOPLIST_FILE = SnapGallery/App/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
@@ -203,7 +203,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M5KG29P3ML;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SnapGallery/Info.plist;
+				INFOPLIST_FILE = SnapGallery/App/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";

@@ -29,6 +29,7 @@
       "size" : "29x29"
     },
     {
+      "filename" : "AppIcon~ipad.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
@@ -55,7 +56,6 @@
       "size" : "40x40"
     },
     {
-      "filename" : "AppIcon-60@2x~car.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
@@ -87,6 +87,7 @@
       "size" : "68x68"
     },
     {
+      "filename" : "AppIcon@2x~ipad.png",
       "idiom" : "universal",
       "platform" : "ios",
       "scale" : "2x",
