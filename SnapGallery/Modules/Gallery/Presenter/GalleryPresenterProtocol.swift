@@ -5,5 +5,5 @@ protocol GalleryPresenterProtocol {
     
     func viewDidLoad()
     func didSelectRow(at indexPath: IndexPath)
-    func product(at index: Int) -> Product
+    func product(at index: Int) -> ProductWithImage
 }

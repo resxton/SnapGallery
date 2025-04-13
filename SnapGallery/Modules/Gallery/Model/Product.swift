@@ -2,5 +2,5 @@ import Foundation
 
 struct Product {
     let title: String
-    let url: URL
+    let url: String
 }

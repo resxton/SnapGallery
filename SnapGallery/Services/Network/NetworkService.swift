@@ -4,11 +4,16 @@ final class NetworkService: NSObject {
     
     // MARK: - Private Properties
 
-    private var progressBlocks: [Int: (Double) -> Void] = [:]
+    private var progressBlocks: [Int: (Float) -> Void] = [:]
     private var completionBlocks: [Int: (Result<Data, NetworkError>) -> Void] = [:]
+    
+    var totalBytesExpectedToWrite: Int64 = 0
+    var totalBytesWritten: Int64 = 0
     
     private lazy var urlSession = {
         let configuration = URLSessionConfiguration.default
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        configuration.urlCache = nil
         return URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
     }()
 }
@@ -54,15 +59,57 @@ extension NetworkService: NetworkServiceProtocol {
         task.resume()
     }
     
-    public func download(url: String, completion: @escaping (Result<Data, NetworkError>) -> Void) {
-        // TODO: Download
+    public func download(
+        url: String,
+        progressBlock: ((Float) -> Void)?,
+        completion: @escaping (Result<Data, NetworkError>) -> Void
+    ) {
+        guard let url = URL(string: url) else {
+            completion(.failure(.invalidURL))
+            return
+        }
+        
+        let request = URLRequest(url: url)
+        let task = urlSession.dataTask(with: request)
+        
+        progressBlocks[task.taskIdentifier] = progressBlock
+        completionBlocks[task.taskIdentifier] = completion
+        
+        task.resume()
     }
 }
 
 // MARK: - URLSessionDataDelegate
 
 extension NetworkService: URLSessionDataDelegate {
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive response: URLResponse,
+        completionHandler: @escaping (
+            URLSession.ResponseDisposition
+        ) -> Void
+    ) {
+        if let httpResponse = response as? HTTPURLResponse,
+           let contentLength = httpResponse.allHeaderFields[Consts.contentLength] as? String {
+            let totalLength = Int64(contentLength) ?? 0
+            totalBytesExpectedToWrite += totalLength
+        }
+        completionHandler(.allow)
+    }
     
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive data: Data
+    ) {
+        let taskID = dataTask.taskIdentifier
+        if let progressBlock = progressBlocks[taskID] {
+            totalBytesWritten += Int64(data.count)
+            let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
+            progressBlock(progress)
+        }
+    }    
 }
 
 // MARK: - Consts
@@ -70,5 +117,6 @@ extension NetworkService: URLSessionDataDelegate {
 extension NetworkService {
     private enum Consts {
         static let noDataMessage = "Empty data"
+        static let contentLength = "Content-Length"
     }
 }

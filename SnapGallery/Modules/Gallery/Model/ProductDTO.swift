@@ -6,7 +6,7 @@ struct ProductDTO: Decodable {
     let price: Double
     let description: String
     let category: String
-    let image: URL
+    let image: String
 }
 
 extension ProductDTO {

@@ -8,6 +8,7 @@ protocol NetworkServiceProtocol {
     
     func download(
         url: String,
+        progressBlock: ((Float) -> Void)?,
         completion: @escaping (Result<Data, NetworkError>) -> Void
     )
 }

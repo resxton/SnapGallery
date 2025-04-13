@@ -102,6 +102,14 @@ extension GalleryViewController: GalleryViewProtocol {
     func updateTable() {
         tableView.reloadData()
     }
+    
+    func updateProgress(with amount: Float) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            
+            progressBar.setProgress(amount, animated: true)
+        }
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -119,7 +127,7 @@ extension GalleryViewController: UITableViewDataSource {
         let product = presenter.product(at: indexPath.row)
         var contentConfiguration = cell.defaultContentConfiguration()
         contentConfiguration.text = product.title
-        contentConfiguration.image = UIImage(systemName: "photo")?.withTintColor(.white)
+        contentConfiguration.image = product.image
         cell.contentConfiguration = contentConfiguration
         
         return cell
@@ -130,7 +138,8 @@ extension GalleryViewController: UITableViewDataSource {
 
 extension GalleryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        presenter.didSelectRow(at: indexPath)
+        tableView.deselectRow(at: indexPath, animated: true)
+        // presenter.didSelectRow(at: indexPath)
     }
 }
 

@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 class ProductRepository: ProductRepositoryProtocol {
     
@@ -51,6 +51,26 @@ class ProductRepository: ProductRepositoryProtocol {
                 default:
                     completion(.failure(.unknown(description: error.localizedDescription)))
                 }
+            }
+        }
+    }
+    
+    public func downloadImage(
+        url: String,
+        progressBlock: @escaping (Float) -> Void,
+        completion: @escaping (Result<UIImage, NetworkError>) -> Void
+    ) {
+        networkService.download(url: url, progressBlock: progressBlock) { result in
+            switch result {
+            case .success(let data):
+                guard let image = UIImage(data: data) else {
+                    return
+                }
+                let targetSize = CGSize(width: 100, height: 100)
+                let resizedImage = image.resizeImage(to: targetSize)
+                completion(.success(resizedImage ?? image))
+            case .failure(let error):
+                completion(.failure(.unknown(description: error.localizedDescription)))
             }
         }
     }
