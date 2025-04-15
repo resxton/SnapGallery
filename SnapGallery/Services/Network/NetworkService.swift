@@ -6,6 +6,7 @@ final class NetworkService: NSObject {
 
     private var progressBlocks: [Int: (Float) -> Void] = [:]
     private var completionBlocks: [Int: (Result<Data, NetworkError>) -> Void] = [:]
+    private var receivedData: [Int: Data] = [:]
     
     var totalBytesExpectedToWrite: Int64 = 0
     var totalBytesWritten: Int64 = 0
@@ -104,12 +105,38 @@ extension NetworkService: URLSessionDataDelegate {
         didReceive data: Data
     ) {
         let taskID = dataTask.taskIdentifier
+        
+        receivedData[taskID, default: Data()].append(data)
+
         if let progressBlock = progressBlocks[taskID] {
             totalBytesWritten += Int64(data.count)
             let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
             progressBlock(progress)
         }
-    }    
+    }
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: (any Error)?) {
+        let taskID = task.taskIdentifier
+        defer {
+            progressBlocks.removeValue(forKey: taskID)
+            completionBlocks.removeValue(forKey: taskID)
+            receivedData.removeValue(forKey: taskID)
+        }
+        
+        guard let completion = completionBlocks[taskID] else { return }
+        
+        if let error {
+            completion(.failure(.unknown(description: error.localizedDescription)))
+            return
+        }
+        
+        guard let data = receivedData[taskID], !data.isEmpty else {
+            completion(.failure(.unknown(description: Consts.noDataMessage)))
+            return
+        }
+        
+        completion(.success(data))
+    }
 }
 
 // MARK: - Consts

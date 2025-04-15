@@ -15,6 +15,9 @@ final class GalleryPresenter: GalleryPresenterProtocol {
     private var products: [Product] = []
     private var productsWithImage: [ProductWithImage] = []
     
+    // Можно поменять на .withUpdatingTables чтобы соответствующие картинкам ячейки появлялись сразу после загрузки
+    private let imagesLoadingMode: ImagesLoadingMode = .withoutUpdatingTable
+    
     // MARK: - Initializers
     
     init(productRepository: ProductRepositoryProtocol) {
@@ -28,7 +31,7 @@ final class GalleryPresenter: GalleryPresenterProtocol {
     }
     
     public func didSelectRow(at indexPath: IndexPath) {
-        // TODO:
+        // TODO: 
     }
     
     public func product(at index: Int) -> ProductWithImage {
@@ -51,7 +54,12 @@ final class GalleryPresenter: GalleryPresenterProtocol {
             case .success(let productsList):
                 DispatchQueue.main.async {
                     self.products = productsList
-                    self.loadImages()
+                    switch self.imagesLoadingMode {
+                    case .withoutUpdatingTable:
+                        self.loadImagesWithoutUpdatingTable()
+                    case .withUpdatingTable:
+                        self.loadImages()
+                    }
                 }
             case .failure(let error):
                 print(error)
@@ -82,5 +90,43 @@ final class GalleryPresenter: GalleryPresenterProtocol {
                 }
             }
         }
+    }
+    
+    private func loadImagesWithoutUpdatingTable() {
+        let group = DispatchGroup()
+        var loadedProductsWithImage: [ProductWithImage] = []
+        
+        products.forEach { product in
+            group.enter()
+            
+            productRepository.downloadImage(url: product.url) { [weak self] amount in
+                guard let self else { return }
+                
+                view?.updateProgress(with: amount)
+            } completion: { result in
+                switch result {
+                case .success(let image):
+                    let productWithImage = ProductWithImage(title: product.title, image: image)
+                    loadedProductsWithImage.append(productWithImage)
+                case .failure(let error):
+                    print("Image loading error:", error)
+                }
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .main) { [weak self] in
+            guard let self else { return }
+            self.productsWithImage = loadedProductsWithImage
+            self.view?.updateTable()
+        }
+    }
+
+}
+
+extension GalleryPresenter {
+    private enum ImagesLoadingMode {
+        case withoutUpdatingTable
+        case withUpdatingTable
     }
 }

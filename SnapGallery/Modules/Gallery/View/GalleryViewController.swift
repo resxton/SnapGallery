@@ -106,8 +106,8 @@ extension GalleryViewController: GalleryViewProtocol {
     func updateProgress(with amount: Float) {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            
-            progressBar.setProgress(amount, animated: true)
+
+            progressBar.setProgress(amount, animated: false)
         }
     }
 }
@@ -139,7 +139,6 @@ extension GalleryViewController: UITableViewDataSource {
 extension GalleryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        // presenter.didSelectRow(at: indexPath)
     }
 }
 
