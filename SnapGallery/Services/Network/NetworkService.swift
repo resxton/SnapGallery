@@ -115,7 +115,13 @@ extension NetworkService: URLSessionDataDelegate {
         }
     }
     
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: (any Error)?) {
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: (
+            any Error
+        )?
+    ) {
         let taskID = task.taskIdentifier
         defer {
             progressBlocks.removeValue(forKey: taskID)

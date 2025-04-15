@@ -1,10 +1,3 @@
-//
-//  ProductWithImage.swift
-//  SnapGallery
-//
-//  Created by Сомов Кирилл on 11.04.2025.
-//
-
 import UIKit
 
 struct ProductWithImage {

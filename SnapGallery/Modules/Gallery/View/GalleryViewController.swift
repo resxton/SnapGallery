@@ -110,6 +110,16 @@ extension GalleryViewController: GalleryViewProtocol {
             progressBar.setProgress(amount, animated: false)
         }
     }
+    
+    func presentAlert(title: String, message: String?) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            let action = UIAlertAction(title: "ОК", style: .cancel)
+            alert.addAction(action)
+            present(alert, animated: true)
+        }
+    }
 }
 
 // MARK: - UITableViewDataSource

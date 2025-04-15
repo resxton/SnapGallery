@@ -16,7 +16,7 @@ final class GalleryPresenter: GalleryPresenterProtocol {
     private var productsWithImage: [ProductWithImage] = []
     
     // Можно поменять на .withUpdatingTables чтобы соответствующие картинкам ячейки появлялись сразу после загрузки
-    private let imagesLoadingMode: ImagesLoadingMode = .withoutUpdatingTable
+    private let imagesLoadingMode: ImagesLoadingMode = .withUpdatingTable
     
     // MARK: - Initializers
     
@@ -62,18 +62,17 @@ final class GalleryPresenter: GalleryPresenterProtocol {
                     }
                 }
             case .failure(let error):
-                print(error)
+                view.presentAlert(title: "Ошибка", message: error.alertMessage)
             }
         }
     }
     
     private func loadImages() {
+        guard let view else { return }
+
         products.forEach { product in
-            productRepository.downloadImage(url: product.url) { [weak self] amount in
-                guard let self else { return }
-                
-                view?.updateProgress(with: amount)
-                print(amount)
+            productRepository.downloadImage(url: product.url) { amount in
+                view.updateProgress(with: amount)
             } completion: { result in
                 switch result {
                 case .success(let image):
@@ -82,34 +81,33 @@ final class GalleryPresenter: GalleryPresenterProtocol {
                         guard let self else { return }
                         
                         productsWithImage.append(productWithImage)
-                        view?.updateTable()
-                        print("Image loaded")
+                        view.updateTable()
                     }
                 case .failure(let error):
-                    print(error.localizedDescription)
+                    view.presentAlert(title: "Ошибка", message: error.alertMessage)
                 }
             }
         }
     }
     
     private func loadImagesWithoutUpdatingTable() {
+        guard let view else { return }
+
         let group = DispatchGroup()
         var loadedProductsWithImage: [ProductWithImage] = []
         
         products.forEach { product in
             group.enter()
             
-            productRepository.downloadImage(url: product.url) { [weak self] amount in
-                guard let self else { return }
-                
-                view?.updateProgress(with: amount)
+            productRepository.downloadImage(url: product.url) { amount in
+                view.updateProgress(with: amount)
             } completion: { result in
                 switch result {
                 case .success(let image):
                     let productWithImage = ProductWithImage(title: product.title, image: image)
                     loadedProductsWithImage.append(productWithImage)
                 case .failure(let error):
-                    print("Image loading error:", error)
+                    view.presentAlert(title: "Ошибка", message: error.alertMessage)
                 }
                 group.leave()
             }
@@ -117,8 +115,9 @@ final class GalleryPresenter: GalleryPresenterProtocol {
 
         group.notify(queue: .main) { [weak self] in
             guard let self else { return }
-            self.productsWithImage = loadedProductsWithImage
-            self.view?.updateTable()
+            
+            productsWithImage = loadedProductsWithImage
+            view.updateTable()
         }
     }
 
