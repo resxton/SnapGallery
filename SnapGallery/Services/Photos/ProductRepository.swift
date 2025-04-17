@@ -66,8 +66,7 @@ class ProductRepository: ProductRepositoryProtocol {
                 guard let image = UIImage(data: data) else {
                     return
                 }
-                let targetSize = CGSize(width: 100, height: 100)
-                let resizedImage = image.resizeImage(to: targetSize)
+                let resizedImage = image.resizeImage(to: Consts.targetSize)
                 completion(.success(resizedImage ?? image))
             case .failure(let error):
                 completion(.failure(.unknown(description: error.localizedDescription)))
@@ -81,5 +80,6 @@ class ProductRepository: ProductRepositoryProtocol {
 extension ProductRepository {
     private enum Consts {
         static let productsListUrl = "https://fakestoreapi.com/products"
+        static let targetSize = CGSize(width: 100, height: 100)
     }
 }

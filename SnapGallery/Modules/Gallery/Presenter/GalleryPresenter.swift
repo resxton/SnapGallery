@@ -62,7 +62,7 @@ final class GalleryPresenter: GalleryPresenterProtocol {
                     }
                 }
             case .failure(let error):
-                view.presentAlert(title: "Ошибка", message: error.alertMessage)
+                view.presentAlert(title: Consts.errorAlertTitle, message: error.alertMessage)
             }
         }
     }
@@ -84,7 +84,7 @@ final class GalleryPresenter: GalleryPresenterProtocol {
                         view.updateTable()
                     }
                 case .failure(let error):
-                    view.presentAlert(title: "Ошибка", message: error.alertMessage)
+                    view.presentAlert(title: Consts.errorAlertTitle, message: error.alertMessage)
                 }
             }
         }
@@ -107,7 +107,7 @@ final class GalleryPresenter: GalleryPresenterProtocol {
                     let productWithImage = ProductWithImage(title: product.title, image: image)
                     loadedProductsWithImage.append(productWithImage)
                 case .failure(let error):
-                    view.presentAlert(title: "Ошибка", message: error.alertMessage)
+                    view.presentAlert(title: Consts.errorAlertTitle, message: error.alertMessage)
                 }
                 group.leave()
             }
@@ -127,5 +127,11 @@ extension GalleryPresenter {
     private enum ImagesLoadingMode {
         case withoutUpdatingTable
         case withUpdatingTable
+    }
+}
+
+extension GalleryPresenter {
+    private enum Consts {
+        static let errorAlertTitle = "Ошибка"
     }
 }

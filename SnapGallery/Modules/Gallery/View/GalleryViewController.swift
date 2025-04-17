@@ -90,7 +90,7 @@ extension GalleryViewController: GalleryViewProtocol {
                 loader.startAnimating()
                 loader.alpha = 1
             } else {
-                UIView.animate(withDuration: 0.3, animations: {
+                UIView.animate(withDuration: Consts.animationDuration, animations: {
                     self.loader.alpha = 0
                 }, completion: { _ in
                     self.loader.stopAnimating()
@@ -115,7 +115,7 @@ extension GalleryViewController: GalleryViewProtocol {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-            let action = UIAlertAction(title: "ОК", style: .cancel)
+            let action = UIAlertAction(title: Consts.actionTitle, style: .cancel)
             alert.addAction(action)
             present(alert, animated: true)
         }
@@ -157,6 +157,8 @@ extension GalleryViewController: UITableViewDelegate {
 extension GalleryViewController {
     private enum Consts {
         static let cellIdentifier = "GalleryCell"
+        static let actionTitle = "ОК"
         static let verticalSpacing: CGFloat = 16
+        static let animationDuration: TimeInterval = 0.3
     }
 }
