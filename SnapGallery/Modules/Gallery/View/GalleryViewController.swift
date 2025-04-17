@@ -13,14 +13,14 @@ class GalleryViewController: UIViewController {
         return tableView
     }()
     
-    private var progressBar: UIProgressView = {
+    private let progressBar: UIProgressView = {
         let progressBar = UIProgressView()
         progressBar.tintColor = .accent
         progressBar.trackTintColor = .customBlack
         return progressBar
     }()
     
-    private var loader: UIActivityIndicatorView = {
+    private let loader: UIActivityIndicatorView = {
         let loader = UIActivityIndicatorView(style: .large)
         loader.alpha = 0
         loader.color = .customBlack
