@@ -26,15 +26,15 @@ final class GalleryPresenter: GalleryPresenterProtocol {
     
     // MARK: - Public Methods
     
-    public func viewDidLoad() {
+    func viewDidLoad() {
         loadProducts()
     }
     
-    public func didSelectRow(at indexPath: IndexPath) {
+    func didSelectRow(at indexPath: IndexPath) {
         // TODO: 
     }
     
-    public func product(at index: Int) -> ProductWithImage {
+    func product(at index: Int) -> ProductWithImage {
         productsWithImage[index]
     }
     

@@ -12,7 +12,7 @@ final class AppDIContainer {
     
     // MARK: - Public Methods
     
-    public func makeGalleryViewController() -> GalleryViewController {
+    func makeGalleryViewController() -> GalleryViewController {
         let presenter = GalleryPresenter(productRepository: productRepository)
         let view = GalleryViewController(presenter: presenter)
         presenter.view = view

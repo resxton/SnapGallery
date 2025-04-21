@@ -19,7 +19,7 @@ class ProductRepository: ProductRepositoryProtocol {
     
     // MARK: - Public Methods
     
-    public func fetchProductsList(
+    func fetchProductsList(
         completion: @escaping (Result<[Product], NetworkError>) -> Void
     ) {
         networkService.get(url: Consts.productsListUrl) { [weak self] result in
@@ -55,7 +55,7 @@ class ProductRepository: ProductRepositoryProtocol {
         }
     }
     
-    public func downloadImage(
+    func downloadImage(
         url: String,
         progressBlock: @escaping (Float) -> Void,
         completion: @escaping (Result<UIImage, NetworkError>) -> Void

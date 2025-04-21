@@ -25,7 +25,7 @@ extension NetworkService: NetworkServiceProtocol {
     
     // MARK: - Public Methods
     
-    public func get(
+    func get(
         url: String,
         completion: @escaping (Result<Data, NetworkError>) -> Void
     ) {
@@ -60,7 +60,7 @@ extension NetworkService: NetworkServiceProtocol {
         task.resume()
     }
     
-    public func download(
+    func download(
         url: String,
         progressBlock: ((Float) -> Void)?,
         completion: @escaping (Result<Data, NetworkError>) -> Void
