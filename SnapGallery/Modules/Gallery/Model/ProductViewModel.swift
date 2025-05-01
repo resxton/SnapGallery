@@ -1,6 +1,6 @@
 import UIKit
 
-struct ProductWithImage {
+struct ProductViewModel {
     let title: String
     let image: UIImage?
 }

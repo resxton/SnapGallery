@@ -10,7 +10,7 @@ struct ProductDTO: Decodable {
 }
 
 extension ProductDTO {
-    func toDomain() -> Product {
-        return Product(title: title, url: image)
+    func toDomain() -> ProductDomain {
+        return ProductDomain(title: title, url: image)
     }
 }

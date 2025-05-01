@@ -1,6 +1,6 @@
 import UIKit
 
-class ProductRepository: ProductRepositoryProtocol {
+final class ProductRepository: ProductRepositoryProtocol {
     
     // MARK: - Private Properties
     
@@ -20,7 +20,7 @@ class ProductRepository: ProductRepositoryProtocol {
     // MARK: - Public Methods
     
     func fetchProductsList(
-        completion: @escaping (Result<[Product], NetworkError>) -> Void
+        completion: @escaping (Result<[ProductDomain], NetworkError>) -> Void
     ) {
         networkService.get(url: Consts.productsListUrl) { [weak self] result in
             guard let self else { return }

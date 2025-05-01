@@ -1,6 +1,6 @@
 import Foundation
 
-struct Product {
+struct ProductDomain {
     let title: String
     let url: String
 }

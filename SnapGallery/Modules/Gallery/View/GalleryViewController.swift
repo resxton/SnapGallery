@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-class GalleryViewController: UIViewController {
+final class GalleryViewController: UIViewController {
     
     // MARK: - Visual Components
     
@@ -83,19 +83,15 @@ class GalleryViewController: UIViewController {
 
 extension GalleryViewController: GalleryViewProtocol {
     func setLoaderVisible(_ isVisible: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            
-            if isVisible {
-                loader.startAnimating()
-                loader.alpha = 1
-            } else {
-                UIView.animate(withDuration: Consts.animationDuration, animations: {
-                    self.loader.alpha = 0
-                }, completion: { _ in
-                    self.loader.stopAnimating()
-                })
-            }
+        if isVisible {
+            loader.startAnimating()
+            loader.alpha = 1
+        } else {
+            UIView.animate(withDuration: Consts.animationDuration, animations: {
+                self.loader.alpha = 0
+            }, completion: { _ in
+                self.loader.stopAnimating()
+            })
         }
     }
     
@@ -104,21 +100,14 @@ extension GalleryViewController: GalleryViewProtocol {
     }
     
     func updateProgress(with amount: Float) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-
-            progressBar.setProgress(amount, animated: false)
-        }
+        progressBar.setProgress(amount, animated: false)
     }
     
     func presentAlert(title: String, message: String?) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-            let action = UIAlertAction(title: Consts.actionTitle, style: .cancel)
-            alert.addAction(action)
-            present(alert, animated: true)
-        }
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: Consts.actionTitle, style: .cancel)
+        alert.addAction(action)
+        present(alert, animated: true)
     }
 }
 

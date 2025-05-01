@@ -6,17 +6,17 @@ final class GalleryPresenter: GalleryPresenterProtocol {
     
     weak var view: GalleryViewProtocol?
     var productsCount: Int {
-        productsWithImage.count
+        productViewModels.count
     }
     
     // MARK: - Private Properties
     
     private let productRepository: ProductRepositoryProtocol
-    private var products: [Product] = []
-    private var productsWithImage: [ProductWithImage] = []
+    private var products: [ProductDomain] = []
+    private var productViewModels: [ProductViewModel] = []
     
     // Можно поменять на .withUpdatingTables чтобы соответствующие картинкам ячейки появлялись сразу после загрузки
-    private let imagesLoadingMode: ImagesLoadingMode = .withUpdatingTable
+    private let imagesLoadingMode: ImagesLoadingMode = .withoutUpdatingTable
     
     // MARK: - Initializers
     
@@ -31,96 +31,135 @@ final class GalleryPresenter: GalleryPresenterProtocol {
     }
     
     func didSelectRow(at indexPath: IndexPath) {
-        // TODO: 
+        // TODO: Implement selection logic
     }
     
-    func product(at index: Int) -> ProductWithImage {
-        productsWithImage[index]
+    func product(at index: Int) -> ProductViewModel {
+        productViewModels[index]
     }
     
     // MARK: - Private Methods
     
     private func loadProducts() {
-        guard let view else { return }
+        guard let view = view else { return }
         
-        view.setLoaderVisible(true)
+        DispatchQueue.main.async {
+            view.setLoaderVisible(true)
+            view.updateProgress(with: 0) // Reset progress
+        }
         
-        self.productRepository.fetchProductsList { [weak self] result in
-            guard let self else { return }
+        productRepository.fetchProductsList { [weak self] result in
+            guard let self = self else { return }
             
-            view.setLoaderVisible(false)
+            DispatchQueue.main.async {
+                view.setLoaderVisible(false)
+            }
             
             switch result {
             case .success(let productsList):
-                DispatchQueue.main.async {
-                    self.products = productsList
-                    switch self.imagesLoadingMode {
-                    case .withoutUpdatingTable:
-                        self.loadImagesWithoutUpdatingTable()
-                    case .withUpdatingTable:
-                        self.loadImages()
-                    }
-                }
+                self.products = productsList
+                self.loadImagesAccordingToMode()
             case .failure(let error):
-                view.presentAlert(title: Consts.errorAlertTitle, message: error.alertMessage)
+                DispatchQueue.main.async {
+                    view.presentAlert(title: Consts.errorAlertTitle, message: error.alertMessage)
+                }
             }
         }
     }
     
-    private func loadImages() {
-        guard let view else { return }
-
+    private func loadImagesAccordingToMode() {
+        switch imagesLoadingMode {
+        case .withoutUpdatingTable:
+            loadImagesWithoutUpdatingTable()
+        case .withUpdatingTable:
+            loadImagesWithTableUpdates()
+        }
+    }
+    
+    private func loadImagesWithTableUpdates() {
+        guard let view = view else { return }
+        
+        let totalCount = products.count
+        var completedCount = 0
+        
         products.forEach { product in
-            productRepository.downloadImage(url: product.url) { amount in
-                view.updateProgress(with: amount)
-            } completion: { result in
-                switch result {
-                case .success(let image):
-                    let productWithImage = ProductWithImage(title: product.title, image: image)
-                    DispatchQueue.main.async { [weak self] in
-                        guard let self else { return }
-                        
-                        productsWithImage.append(productWithImage)
-                        view.updateTable()
-                    }
-                case .failure(let error):
-                    view.presentAlert(title: Consts.errorAlertTitle, message: error.alertMessage)
+            downloadImage(for: product) { [weak self] viewModel in
+                guard let self = self else { return }
+                
+                completedCount += 1
+                let progress = Float(completedCount) / Float(totalCount)
+                
+                DispatchQueue.main.async {
+                    self.productViewModels.append(viewModel)
+                    view.updateProgress(with: progress)
+                    view.updateTable()
+                }
+            } onFailure: { [weak view] message in
+                DispatchQueue.main.async {
+                    view?.presentAlert(title: Consts.errorAlertTitle, message: message)
                 }
             }
         }
     }
     
     private func loadImagesWithoutUpdatingTable() {
-        guard let view else { return }
-
+        guard let view = view else { return }
+        
         let group = DispatchGroup()
-        var loadedProductsWithImage: [ProductWithImage] = []
+        var loadedViewModels: [ProductViewModel] = []
+        let totalCount = products.count
+        var completedCount = 0
         
         products.forEach { product in
             group.enter()
             
-            productRepository.downloadImage(url: product.url) { amount in
-                view.updateProgress(with: amount)
-            } completion: { result in
-                switch result {
-                case .success(let image):
-                    let productWithImage = ProductWithImage(title: product.title, image: image)
-                    loadedProductsWithImage.append(productWithImage)
-                case .failure(let error):
-                    view.presentAlert(title: Consts.errorAlertTitle, message: error.alertMessage)
+            downloadImage(for: product) { viewModel in
+                completedCount += 1
+                let progress = Float(completedCount) / Float(totalCount)
+                
+                DispatchQueue.main.async {
+                    view.updateProgress(with: progress)
+                }
+                
+                loadedViewModels.append(viewModel)
+                group.leave()
+            } onFailure: { [weak view] message in
+                DispatchQueue.main.async {
+                    view?.presentAlert(title: Consts.errorAlertTitle, message: message)
                 }
                 group.leave()
             }
         }
-
+        
         group.notify(queue: .main) { [weak self] in
-            guard let self else { return }
+            guard let self = self else { return }
             
-            productsWithImage = loadedProductsWithImage
+            self.productViewModels = loadedViewModels
             view.updateTable()
         }
     }
-
+    
+    private func downloadImage(
+        for product: ProductDomain,
+        onSuccess: @escaping (ProductViewModel) -> Void,
+        onFailure: @escaping (String) -> Void
+    ) {
+        // globalProgress приходит в это замыкание при обновлении любой загрузки
+        // и рассчитывается исходя из общего прогресса
+        productRepository.downloadImage(url: product.url) { [weak view] globalProgress in
+            DispatchQueue.main.async {
+                view?.updateProgress(with: globalProgress)
+            }
+        } completion: { result in
+            switch result {
+            case .success(let image):
+                let viewModel = ProductViewModel(title: product.title, image: image)
+                onSuccess(viewModel)
+            case .failure(let error):
+                onFailure(error.alertMessage)
+            }
+        }
+    }
 }
 
 extension GalleryPresenter {
@@ -128,9 +167,7 @@ extension GalleryPresenter {
         case withoutUpdatingTable
         case withUpdatingTable
     }
-}
-
-extension GalleryPresenter {
+    
     private enum Consts {
         static let errorAlertTitle = "Ошибка"
     }

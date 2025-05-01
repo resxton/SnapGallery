@@ -1,7 +1,7 @@
 import UIKit
 
 protocol ProductRepositoryProtocol {
-    func fetchProductsList(completion: @escaping (Result<[Product], NetworkError>) -> Void)
+    func fetchProductsList(completion: @escaping (Result<[ProductDomain], NetworkError>) -> Void)
     func downloadImage(
         url: String,
         progressBlock: @escaping (Float) -> Void,

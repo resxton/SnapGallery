@@ -8,8 +8,8 @@ final class NetworkService: NSObject {
     private var completionBlocks: [Int: (Result<Data, NetworkError>) -> Void] = [:]
     private var receivedData: [Int: Data] = [:]
     
-    var totalBytesExpectedToWrite: Int64 = 0
-    var totalBytesWritten: Int64 = 0
+    private var totalBytesExpectedToWrite: Int64 = 0
+    private var totalBytesWritten: Int64 = 0
     
     private lazy var urlSession = {
         let configuration = URLSessionConfiguration.default

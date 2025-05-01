@@ -6,9 +6,9 @@ final class AppDIContainer {
     
     private lazy var networkService: NetworkServiceProtocol = NetworkService()
     
-    private lazy var productRepository: ProductRepositoryProtocol = {
-        ProductRepository(networkService: networkService)
-    }()
+    private lazy var productRepository: ProductRepositoryProtocol = ProductRepository(
+        networkService: networkService
+    )
     
     // MARK: - Public Methods
     
